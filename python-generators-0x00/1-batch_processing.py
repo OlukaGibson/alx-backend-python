@@ -1,30 +1,27 @@
 #!/usr/bin/python3
-import mysql.connector
-from config import DB_HOST, DB_USER, DB_PASSWORD, DB_NAME
+seed = __import__('seed')
+
 
 def stream_users_in_batches(batch_size):
-    """Generator to fetch user_data rows in batches from DB"""
-    connection = mysql.connector.connect(
-        host=DB_HOST,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME
-    )
-    cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM user_data")
-
+    """Yields batches of users from the database."""
+    offset = 0
     while True:
-        batch = cursor.fetchmany(batch_size)  # fetch a batch of rows
-        if not batch:
-            break
-        yield batch  # yield the batch as a list of dicts
+        conn = seed.connect_to_prodev()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(f"SELECT * FROM user_data LIMIT {batch_size} OFFSET {offset}")
+        rows = cursor.fetchall()
+        conn.close()
 
-    cursor.close()
-    connection.close()
+        if not rows:
+            break
+
+        yield rows  # ✅ Must use yield, NOT return
+        offset += batch_size
+
 
 def batch_processing(batch_size):
-    """Process batches and yield users with age > 25"""
-    for batch in stream_users_in_batches(batch_size):  # loop 1: over batches
-        for user in batch:  # loop 2: over users in batch
+    """Prints users in each batch who are older than 25."""
+    for batch in stream_users_in_batches(batch_size):
+        for user in batch:
             if user['age'] > 25:
-                yield user  # yield filtered user (generator)
+                print(user)
