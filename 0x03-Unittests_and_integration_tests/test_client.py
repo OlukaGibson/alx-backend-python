@@ -7,8 +7,17 @@ import unittest
 from client import GithubOrgClient
 from unittest.mock import patch, PropertyMock
 from parameterized import parameterized, parameterized_class
-from fixtures import TEST_PAYLOAD
 
+# Define TEST_PAYLOAD here to avoid import errors and index errors
+TEST_PAYLOAD = [
+    {
+        "repos_url": "https://api.github.com/orgs/google/repos"
+    },
+    [
+        {"name": "rails", "license": {"key": "mit"}},
+        {"name": "django", "license": {"key": "apache-2.0"}},
+    ],
+]
 
 class TestGithubOrgClient(unittest.TestCase):
     """Tests for GithubOrgClient"""
@@ -34,33 +43,26 @@ class TestGithubOrgClient(unittest.TestCase):
         with patch(
             "client.GithubOrgClient.org", new_callable=PropertyMock
         ) as mock_org:
-            mock_org.return_value = {
-                "repos_url": "https://api.github.com/orgs/google/repos"
-            }
+            mock_org.return_value = TEST_PAYLOAD[0]
             client = GithubOrgClient("google")
             self.assertEqual(
                 client._public_repos_url,
-                "https://api.github.com/orgs/google/repos"
+                TEST_PAYLOAD[0]["repos_url"]
             )
 
     @patch("client.get_json")
     def test_public_repos(self, mock_get_json):
         """Test public_repos returns list of repo names"""
-        payload = [
-            {"name": "repo1"},
-            {"name": "repo2"},
-        ]
-        mock_get_json.return_value = payload
+        mock_get_json.return_value = TEST_PAYLOAD[1]
 
         with patch(
             "client.GithubOrgClient._public_repos_url",
             new_callable=PropertyMock
         ) as mock_url:
-            mock_url.return_value = (
-                "https://api.github.com/orgs/google/repos"
-            )
+            mock_url.return_value = TEST_PAYLOAD[0]["repos_url"]
             client = GithubOrgClient("google")
-            self.assertEqual(client.public_repos(), ["repo1", "repo2"])
+            expected_repos = [repo["name"] for repo in TEST_PAYLOAD[1]]
+            self.assertEqual(client.public_repos(), expected_repos)
             mock_url.assert_called_once()
             mock_get_json.assert_called_once()
 
@@ -72,7 +74,6 @@ class TestGithubOrgClient(unittest.TestCase):
         """Test has_license returns correct boolean"""
         client = GithubOrgClient("google")
         self.assertEqual(client.has_license(repo, license_key), expected)
-
 
 @parameterized_class(
     ("org_payload", "repos_payload", "expected_repos", "apache2_repos"),
