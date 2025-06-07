@@ -19,6 +19,7 @@ TEST_PAYLOAD = [
     ],
 ]
 
+
 class TestGithubOrgClient(unittest.TestCase):
     """Tests for GithubOrgClient"""
 
@@ -74,6 +75,7 @@ class TestGithubOrgClient(unittest.TestCase):
         """Test has_license returns correct boolean"""
         client = GithubOrgClient("google")
         self.assertEqual(client.has_license(repo, license_key), expected)
+
 
 @parameterized_class(
     ("org_payload", "repos_payload", "expected_repos", "apache2_repos"),
