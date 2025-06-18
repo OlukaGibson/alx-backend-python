@@ -1,12 +1,15 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
-from django.contrib.auth import logout
+from django.shortcuts import render
+from .models import Message
 
 @login_required
-def delete_user(request):
-    if request.method == 'POST':
-        user = request.user
-        logout(request)  # Log out the user before deleting the account
-        user.delete()    # This is required for the check
-        return redirect('account_deleted')  # Redirect to a confirmation page
-    return render(request, 'chats/confirm_delete.html')
+def threaded_conversations_view(request):
+    # Fetch top-level messages where user is sender or receiver
+    messages = Message.objects.filter(
+        parent_message__isnull=True
+    ).filter(
+        sender=request.user
+    ).select_related('sender', 'receiver') \
+     .prefetch_related('replies__sender', 'replies__receiver')
+
+    return render(request, 'chats/threaded_conversations.html', {'messages': messages})
