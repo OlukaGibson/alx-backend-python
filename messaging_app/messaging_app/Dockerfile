@@ -20,5 +20,7 @@ COPY . .
 # Expose port 8000 (default for Django development server)
 EXPOSE 8000
 
+# Reminder for port mapping when running the container: docker run -p 8000:8000 messaging_app_image
+
 # Default command to run your Django app with auto-reload
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
