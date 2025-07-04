@@ -1,0 +1,25 @@
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                // checkout code from GitHub
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                // setup Python, install requirements
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                // run pytest, generate reports
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                // build and push docker image
+            }
+        }
+    }
+}
