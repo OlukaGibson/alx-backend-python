@@ -1,24 +1,36 @@
 pipeline {
     agent any
+
     stages {
         stage('Checkout') {
             steps {
-                // checkout code from GitHub
+                git branch: 'main',
+                    credentialsId: 'github-credentials-id',
+                    url: 'https://github.com/yourusername/alx-backend-python.git'
             }
         }
-        stage('Install Dependencies') {
+
+        stage('Install dependencies') {
             steps {
-                // setup Python, install requirements
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip3 install -r messaging_app/requirements.txt
+                '''
             }
         }
-        stage('Run Tests') {
+
+        stage('Run tests') {
             steps {
-                // run pytest, generate reports
+                sh '''
+                    . venv/bin/activate
+                    pytest messaging_app --junitxml=report.xml
+                '''
             }
-        }
-        stage('Build Docker Image') {
-            steps {
-                // build and push docker image
+            post {
+                always {
+                    junit 'report.xml'
+                }
             }
         }
     }
