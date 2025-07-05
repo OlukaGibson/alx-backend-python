@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Applies blue + green deployments, checks logs for new version
+
+kubectl apply -f blue_deployment.yaml
+kubectl apply -f green_deployment.yaml
+kubectl apply -f kubeservice.yaml
+
+kubectl logs deployment/django-green

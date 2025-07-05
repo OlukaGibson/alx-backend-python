@@ -1,0 +1,22 @@
+# Same as deployment.yaml, but named blue
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-blue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: messaging
+      color: blue
+  template:
+    metadata:
+      labels:
+        app: messaging
+        color: blue
+    spec:
+      containers:
+      - name: messaging-container
+        image: your-dockerhub-username/messaging-app:1.0
+        ports:
+        - containerPort: 8000

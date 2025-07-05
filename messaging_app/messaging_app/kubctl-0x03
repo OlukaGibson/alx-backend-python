@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Applies blue deployment update (image v2.0), monitors rollout, tests app
+
+kubectl apply -f blue_deployment.yaml
+
+kubectl rollout status deployment/django-blue
+
+while true; do curl -s http://your-app-url/; sleep 1; done
