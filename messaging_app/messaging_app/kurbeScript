@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Starts Kubernetes cluster, verifies it's running, gets pods info
+
+# Start cluster
+minikube start
+
+# Check cluster info
+kubectl cluster-info
+
+# Get pods
+kubectl get pods --all-namespaces
