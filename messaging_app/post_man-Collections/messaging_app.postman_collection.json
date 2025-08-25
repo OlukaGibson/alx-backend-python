@@ -1,0 +1,20 @@
+{
+  "info": {
+    "name": "Messaging App API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "JWT Auth",
+      "request": { "method": "POST", "url": "{{base_url}}/api/token/" }
+    },
+    {
+      "name": "Conversations",
+      "request": { "method": "GET", "url": "{{base_url}}/api/chats/conversations/" }
+    },
+    {
+      "name": "Messages",
+      "request": { "method": "GET", "url": "{{base_url}}/api/chats/messages/" }
+    }
+  ]
+}
