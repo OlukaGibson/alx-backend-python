@@ -1,21 +1,29 @@
-from rest_framework import viewsets, filters, status
+from rest_framework import viewsets, permissions
 from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
+from .permissions import IsParticipantOfConversation
+from .filters import MessageFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 class ConversationViewSet(viewsets.ModelViewSet):
-    queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['users__username']
+    permission_classes = [permissions.IsAuthenticated, IsParticipantOfConversation]
+
+    def get_queryset(self):
+        return Conversation.objects.filter(participants=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save()
+        conversation = serializer.save()
+        conversation.participants.add(self.request.user)
 
 class MessageViewSet(viewsets.ModelViewSet):
-    queryset = Message.objects.all()
     serializer_class = MessageSerializer
-    filter_backends = [filters.OrderingFilter]
-    ordering_fields = ['sent_at']
+    permission_classes = [permissions.IsAuthenticated, IsParticipantOfConversation]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = MessageFilter
+
+    def get_queryset(self):
+        return Message.objects.filter(conversation__participants=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(sender=self.request.user)
